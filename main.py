@@ -1,7 +1,7 @@
 import math
 
 # Nombre del archivo de datos
-DATA_FILE = "pruebaProyecto.txt"
+DATA_FILE = "datos.txt"
 
 # Lee los puntos del archivo de datos
 def leer_puntos(nombre_archivo):
@@ -11,8 +11,6 @@ def leer_puntos(nombre_archivo):
             linea = linea.strip()
             if not linea:
                 continue
-            if linea.startswith("OJO"):
-                break
             partes = linea.split()
             if len(partes) < 3:
                 continue
@@ -33,6 +31,22 @@ def distancia(a, b):
 
 # Encuentra la ruta más corta usando el algoritmo de vecino más cercano
 def vecino_mas_cercano(coords):
+    """
+    Esta función resuelve el problema del viajero usando la estrategia del "vecino más cercano".
+    
+    Imagina que eres un viajero que debe visitar varias ciudades. Esta función te ayuda a decidir
+    en qué orden visitarlas para que el viaje sea lo más corto posible.
+    
+    Funciona así:
+    1. Empiezas en la primera ciudad (punto de inicio)
+    2. Miras todas las ciudades que aún no has visitado y eliges la más cercana
+    3. Te mueves a esa ciudad y la marcas como visitada
+    4. Repites los pasos 2 y 3 hasta visitar todas las ciudades intermedias
+    5. Al final, vas a la última ciudad (punto final)
+    
+    Es como cuando haces recados: empiezas en casa, vas primero a la tienda más cercana,
+    luego a la siguiente más cercana, y así sucesivamente, hasta terminar en un lugar específico.
+    """
     # Asumimos que los puntos ya están ordenados por ID.
     n = len(coords)
     inicio = 0

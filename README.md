@@ -1,4 +1,4 @@
-# traveling_salesman
+# Traveling Salesman
 
 ## Descripción
 

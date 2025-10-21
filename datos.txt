@@ -40,7 +40,3 @@
 40   85      15
 
 
-
-
-OJO:  La distancia recorrida por el vendedor, una vez optimizado el recorrido,
-debe ser inferior a 385.00 Unidades
