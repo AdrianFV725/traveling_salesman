@@ -141,6 +141,97 @@ Para usar otro archivo de datos, modifica la constante `DATA_FILE` en `main.py` 
 - Permitir extremos libres: adaptar `vecino_mas_cercano` y los rangos en `dos_opt_simple` para incluir `0` y `n-1` en la selección e inversiones.
 - Métrica distinta: sustituir `distancia` por otra métrica (p. ej., Manhattan) si el dominio lo requiere.
 
+## Interfaz Gráfica Interactiva (main_graficado.py)
+
+Además de la versión por línea de comandos (`main.py`), el proyecto incluye **`main_graficado.py`**, una interfaz interactiva con visualización completa que permite:
+
+### Características principales:
+
+1. **Generación dinámica de datos**
+
+   - Ingresa el número de puntos deseado (3-500+ puntos)
+   - Genera coordenadas aleatorias automáticamente
+   - No requiere archivos de entrada predefinidos
+
+2. **Visualización elegante**
+
+   - Gráfica en tiempo real de la ruta optimizada
+   - Código de colores claro:
+     - Puntos azules: ciudades
+     - Línea roja: ruta calculada
+     - Círculo verde: punto de inicio
+     - Cuadrado rojo: punto de fin
+   - Grid sutil y diseño minimalista
+
+3. **Animación de optimización**
+
+   - Visualiza paso a paso cómo el algoritmo 2-opt mejora la ruta
+   - Barra de progreso animada
+   - Control de velocidad ajustable (50-500 ms por iteración)
+   - Muestra iteración actual y distancia en cada frame
+
+4. **Panel de estadísticas**
+
+   - Distancia inicial vs. final
+   - Porcentaje de mejora
+   - Número total de iteraciones
+   - Actualización en tiempo real
+
+5. **Controles interactivos**
+   - Campo de texto para número de puntos
+   - Slider para ajustar velocidad de animación
+   - Botón "Generar": crea y resuelve el problema
+   - Botón "Animar": reproduce la optimización paso a paso
+
+### Cómo ejecutar la interfaz gráfica:
+
+Requisitos adicionales:
+
+```bash
+pip install matplotlib
+```
+
+Ejecución:
+
+```bash
+python3 main_graficado.py
+```
+
+### Uso típico:
+
+1. Ingresa un número de puntos (ej: 40, 100)
+2. Presiona "Generar" para crear datos aleatorios y calcular la ruta óptima
+3. Observa la gráfica con la ruta optimizada y las estadísticas
+4. Ajusta la velocidad con el slider si deseas
+5. Presiona "Animar" para ver la optimización en tiempo real
+
+La ventana de animación muestra:
+
+- Título: "Problema del Viajero (TSP) - Optimización en Tiempo Real"
+- Información de iteración actual y distancia
+- Gráfica actualizada en cada paso
+- Barra de progreso visual en la parte inferior
+
+### Casos de uso recomendados:
+
+- **Educativo**: Ideal para entender visualmente cómo funciona el algoritmo 2-opt
+- **Demostraciones**: Presenta el problema TSP de manera atractiva
+- **Experimentación**: Prueba rápidamente con diferentes cantidades de puntos
+- **Comparación**: Observa cómo varía la mejora según el número de ciudades
+
+### Diferencias con main.py:
+
+| Característica | main.py           | main_graficado.py              |
+| -------------- | ----------------- | ------------------------------ |
+| Interfaz       | Línea de comandos | Gráfica interactiva            |
+| Entrada        | Archivo de texto  | Generación aleatoria o archivo |
+| Visualización  | Solo texto        | Gráfica animada                |
+| Animación      | No                | Sí, paso a paso                |
+| Estadísticas   | Básicas           | Completas con panel visual     |
+| Controles      | Editar código     | Widgets interactivos           |
+
+Ambos archivos usan los mismos algoritmos (vecino más cercano + 2-opt), solo difieren en la presentación y modo de uso.
+
 ## Licencia
 
 Uso académico/educativo.

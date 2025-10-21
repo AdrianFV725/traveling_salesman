@@ -76,6 +76,26 @@ def vecino_mas_cercano(coords):
 
 # Mejora la ruta usando el algoritmo de 2-opt simple
 def dos_opt_simple(coords, ruta):
+    """
+    Esta función mejora una ruta existente usando el algoritmo 2-opt.
+    
+    A diferencia del algoritmo de vecino más cercano que construye una ruta desde cero,
+    2-opt toma una ruta ya existente y la optimiza intercambiando segmentos para reducir
+    la distancia total.
+    
+    Usar vecino_mas_cercano cuando:
+    - Necesitas generar una ruta inicial desde cero
+    - Tienes puntos de inicio y fin fijos
+    - Quieres una solución rápida pero no necesariamente óptima
+    
+    Usar dos_opt_simple cuando:
+    - Ya tienes una ruta inicial (como la generada por vecino_mas_cercano)
+    - Quieres mejorar esa ruta eliminando cruces y optimizando el recorrido
+    - Puedes permitirte un tiempo de cálculo adicional para obtener una mejor solución
+    
+    Lo ideal es usar ambos: primero vecino_mas_cercano para generar una ruta inicial,
+    y luego dos_opt_simple para mejorarla.
+    """
     # Extremos fijos: no tocamos ruta[0] ni ruta[-1]
     n = len(ruta)
     if n <= 3:
@@ -112,7 +132,7 @@ def main():
         print("No hay puntos en el archivo de datos.")
         return
     # Ordenar por ID para que el inicio sea el primer ID y el fin el último ID
-    puntos.sort(key=lambda t: t[0])
+    puntos.sort(key=lambda t: t[0])#
     ids = [p[0] for p in puntos]
     coords = [(p[1], p[2]) for p in puntos]
     # Encuentra la ruta más corta usando el algoritmo de vecino más cercano
