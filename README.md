@@ -232,9 +232,9 @@ La ventana de animación muestra:
 
 Ambos archivos usan los mismos algoritmos (vecino más cercano + 2-opt), solo difieren en la presentación y modo de uso.
 
-## Optimización con Simulated Annealing (main_optimizado_graficado.py)
+## Optimización con Simulated Annealing (main_optimizado.py)
 
-La versión más avanzada del proyecto incluye **Simulated Annealing** (Recocido Simulado), una metaheurística que mejora significativamente las soluciones obtenidas con 2-opt.
+La versión optimizada del proyecto (`main_optimizado.py`) implementa **Simulated Annealing** (Recocido Simulado), una metaheurística que mejora significativamente las soluciones obtenidas con 2-opt.
 
 ### ¿Qué es Simulated Annealing?
 
@@ -242,23 +242,26 @@ Simulated Annealing es un algoritmo de optimización inspirado en el proceso met
 
 ### Cómo funciona en este código
 
-El algoritmo implementado sigue estos pasos:
+El algoritmo implementado en `main_optimizado.py` sigue estos pasos:
 
 1. **Inicialización**
 
-   - Parte de la mejor ruta obtenida con 2-opt
-   - Establece una temperatura inicial alta (por defecto: 10,000)
-   - Define una temperatura final baja (por defecto: 0.01)
+   - Parte de la mejor ruta obtenida con 2-opt mejorado (3 pasadas)
+   - Establece una temperatura inicial de 10,000
+   - Define una temperatura final de 0.01
 
 2. **Proceso de optimización**
+
    - En cada iteración, genera una nueva ruta usando uno de tres movimientos aleatorios:
-     - **50%**: Intercambio de dos nodos
+     - **50%**: Intercambio de dos nodos (swap)
      - **35%**: Inversión de un segmento (mini 2-opt)
      - **15%**: Inserción de un nodo en otra posición
+   - Los extremos (inicio y fin) siempre permanecen fijos
+
 3. **Criterio de aceptación**
 
-   - Si la nueva ruta es **mejor** → siempre se acepta
-   - Si la nueva ruta es **peor** → se acepta con probabilidad \( e^{-\Delta/T} \)
+   - Si la nueva ruta es **mejor** (distancia menor) → siempre se acepta
+   - Si la nueva ruta es **peor** (distancia mayor) → se acepta con probabilidad \( e^{-\Delta/T} \)
      - \( \Delta \) = diferencia de distancia (positiva)
      - \( T \) = temperatura actual
    - A mayor temperatura, mayor probabilidad de aceptar soluciones peores
@@ -266,27 +269,36 @@ El algoritmo implementado sigue estos pasos:
 
 4. **Enfriamiento**
 
-   - La temperatura se reduce gradualmente: `T_nueva = T_actual × α`
-   - El parámetro `α` (alpha) controla la velocidad de enfriamiento (por defecto: 0.97)
-   - El proceso continúa hasta alcanzar la temperatura final
+   - La temperatura se reduce gradualmente: `T_nueva = T_actual × 0.97`
+   - El enfriamiento continúa hasta alcanzar la temperatura final (0.01)
+   - En cada nivel de temperatura se realizan 300 iteraciones
 
-5. **Estrategia Multi-Start**
-   - El algoritmo se ejecuta múltiples veces (por defecto: 10 intentos)
+5. **Estrategia Multi-Start (35 intentos)**
+
+   - El algoritmo se ejecuta **35 veces** de forma independiente
    - Cada ejecución puede explorar diferentes regiones del espacio de soluciones
    - Se conserva la mejor solución encontrada entre todos los intentos
-   - Esta estrategia es más efectiva que una sola ejecución larga
+   - Esta estrategia agresiva maximiza las posibilidades de encontrar una excelente solución
 
-### Parámetros configurables
+### Parámetros utilizados en main_optimizado.py
 
-La interfaz permite ajustar los siguientes parámetros:
+Los parámetros están configurados directamente en el código fuente:
 
-| Parámetro          | Descripción                                     | Valor por defecto | Rango recomendado |
-| ------------------ | ----------------------------------------------- | ----------------- | ----------------- |
-| **Temp Inicial**   | Temperatura de inicio (permite más exploración) | 10,000            | 5,000 - 20,000    |
-| **Temp Final**     | Temperatura de parada (refinamiento final)      | 0.01              | 0.001 - 0.1       |
-| **Alpha (α)**      | Factor de enfriamiento por iteración            | 0.97              | 0.95 - 0.99       |
-| **Iters/Temp**     | Iteraciones por nivel de temperatura            | 300               | 100 - 500         |
-| **N° Intentos SA** | Número de ejecuciones independientes            | 10                | 5 - 50            |
+| Parámetro          | Valor utilizado | Descripción                                     |
+| ------------------ | --------------- | ----------------------------------------------- |
+| **Temp Inicial**   | 10,000          | Temperatura de inicio (permite más exploración) |
+| **Temp Final**     | 0.01            | Temperatura de parada (refinamiento final)      |
+| **Alpha (α)**      | 0.97            | Factor de enfriamiento (97% del valor anterior) |
+| **Iters/Temp**     | 300             | Iteraciones por nivel de temperatura            |
+| **N° Intentos SA** | 35              | Número de ejecuciones independientes            |
+
+Para cambiar estos valores, edita la línea 224 en `main_optimizado.py`:
+
+```python
+ruta_temp = simulated_annealing(coords, ruta, temp_inicial=10000,
+                                temp_final=0.01, alpha=0.97,
+                                iteraciones_por_temp=300)
+```
 
 ### Pipeline completo de optimización
 
@@ -307,25 +319,48 @@ Cada etapa mejora sobre la anterior, logrando reducciones típicas de distancia 
 
 ### Cuándo usar cada versión
 
-| Versión                        | Mejor para                                            |
-| ------------------------------ | ----------------------------------------------------- |
-| `main.py`                      | Pruebas rápidas, datasets pequeños, análisis básico   |
-| `main_graficado.py`            | Visualización educativa de 2-opt, demostraciones      |
-| `main_optimizado.py`           | Soluciones de calidad sin interfaz gráfica            |
-| `main_optimizado_graficado.py` | **Mejor solución posible** con visualización completa |
+| Versión                        | Mejor para                                                   |
+| ------------------------------ | ------------------------------------------------------------ |
+| `main.py`                      | Pruebas rápidas, datasets pequeños, análisis básico          |
+| `main_graficado.py`            | Visualización educativa de 2-opt, demostraciones             |
+| `main_optimizado.py`           | **Mejor calidad de solución** (35 intentos SA, sin gráficos) |
+| `main_optimizado_graficado.py` | Mejor solución con visualización completa (10 intentos SA)   |
 
 ### Ejecución de la versión optimizada
 
 ```bash
-python3 main_optimizado_graficado.py
+python3 main_optimizado.py
 ```
 
-**Flujo de trabajo recomendado:**
+El programa ejecuta automáticamente:
 
-1. Configurar número de puntos y parámetros de SA
-2. Presionar "Generar" → calcula solución con 2-opt
-3. Presionar "Optimizar SA" → aplica Simulated Annealing
-4. Presionar "Animar" → visualiza todo el proceso de optimización
+1. **Vecino más cercano** - Genera la ruta inicial
+2. **2-opt mejorado** - Aplica 3 pasadas de optimización local
+3. **Simulated Annealing** - Ejecuta 35 intentos independientes para encontrar la mejor solución
+
+**Salida típica:**
+
+```text
+=== Optimización del Viajero (TSP) ===
+Archivo: datos_60.txt
+Puntos: 60
+
+1. Vecino más cercano - Distancia: 452.34
+2. Después de 2-opt    - Distancia: 387.21 (mejora: 14.40%)
+3. Ejecutando Annealing múltiples veces para encontrar mejor solución...
+   Intento 1/35... Distancia: 345.67
+      ¡Nueva mejor distancia encontrada!
+   Intento 2/35... Distancia: 352.11
+   ...
+   Intento 35/35... Distancia: 341.23
+      ¡Nueva mejor distancia encontrada!
+
+   Mejor resultado de Annealing - Distancia: 341.23 (mejora adicional: 11.88%)
+
+Mejora total: 24.56% (de 452.34 a 341.23)
+
+Ruta final (IDs): [1, 5, 12, ..., 60]
+```
 
 ### Ejemplo de mejoras típicas
 
@@ -343,6 +378,85 @@ Para un problema de 60 ciudades:
 - La probabilidad de aceptación decrece exponencialmente con el tiempo
 - Temperaturas muy bajas convierten SA en búsqueda local pura
 - Temperaturas muy altas hacen el algoritmo completamente aleatorio
+
+### Detalles de implementación en el código
+
+El archivo `main_optimizado.py` implementa el algoritmo de la siguiente manera:
+
+**Función `simulated_annealing` (líneas 102-169):**
+
+```python
+def simulated_annealing(coords, ruta_inicial, temp_inicial=5000,
+                       temp_final=0.1, alpha=0.98, iteraciones_por_temp=200):
+    ruta_actual = deepcopy(ruta_inicial)
+    mejor_ruta = deepcopy(ruta_inicial)
+    temperatura = temp_inicial
+
+    # Solo modificar nodos interiores (no extremos)
+    nodos_interiores = list(range(1, n - 1))
+
+    while temperatura > temp_final:
+        for _ in range(iteraciones_por_temp):
+            # Generar movimiento aleatorio
+            tipo_movimiento = random.random()
+
+            if tipo_movimiento < 0.5:        # 50% - Swap
+                i, j = random.sample(nodos_interiores, 2)
+                nueva_ruta[i], nueva_ruta[j] = nueva_ruta[j], nueva_ruta[i]
+
+            elif tipo_movimiento < 0.85:     # 35% - Reversión
+                i, j = sorted(random.sample(nodos_interiores, 2))
+                nueva_ruta[i:j+1] = reversed(nueva_ruta[i:j+1])
+
+            else:                             # 15% - Inserción
+                nodo = nueva_ruta.pop(i)
+                nueva_ruta.insert(j, nodo)
+
+            # Criterio de aceptación
+            delta = nueva_dist - dist_actual
+            if delta < 0:                     # Mejor solución
+                ruta_actual = nueva_ruta
+            else:                             # Peor solución
+                probabilidad = math.exp(-delta / temperatura)
+                if random.random() < probabilidad:
+                    ruta_actual = nueva_ruta
+
+        temperatura *= alpha  # Enfriar
+
+    return mejor_ruta
+```
+
+**Ejecución Multi-Start en `main()` (líneas 216-238):**
+
+```python
+# Ejecutar 35 intentos independientes
+mejor_ruta_global = ruta
+mejor_dist_global = dist_2opt
+
+num_intentos = 35
+for intento in range(1, num_intentos + 1):
+    print(f"   Intento {intento}/{num_intentos}...", end=" ")
+
+    # Ejecutar SA con parámetros específicos
+    ruta_temp = simulated_annealing(coords, ruta,
+                                   temp_inicial=10000,
+                                   temp_final=0.01,
+                                   alpha=0.97,
+                                   iteraciones_por_temp=300)
+
+    dist_temp = longitud(coords, ruta_temp)
+    print(f"Distancia: {dist_temp:.2f}")
+
+    # Guardar si es mejor
+    if dist_temp < mejor_dist_global:
+        mejor_ruta_global = ruta_temp
+        mejor_dist_global = dist_temp
+        print(f"      ¡Nueva mejor distancia encontrada!")
+
+ruta = mejor_ruta_global  # Usar la mejor ruta encontrada
+```
+
+Esta implementación garantiza que se exploren exhaustivamente diferentes soluciones y se elija la mejor de todas.
 
 ## Licencia
 
