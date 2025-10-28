@@ -1,7 +1,13 @@
+"""
+Problema del Viajero (TSP)
+Adrian Flores Villatoro
+Cristian Moreno Villarreal
+"""
+
 import math
 
 # Nombre del archivo de datos
-DATA_FILE = "datos.txt"
+DATA_FILE = "datos_60.txt"
 
 # Lee los puntos del archivo de datos
 def leer_puntos(nombre_archivo):
@@ -31,22 +37,6 @@ def distancia(a, b):
 
 # Encuentra la ruta más corta usando el algoritmo de vecino más cercano
 def vecino_mas_cercano(coords):
-    """
-    Esta función resuelve el problema del viajero usando la estrategia del "vecino más cercano".
-    
-    Imagina que eres un viajero que debe visitar varias ciudades. Esta función te ayuda a decidir
-    en qué orden visitarlas para que el viaje sea lo más corto posible.
-    
-    Funciona así:
-    1. Empiezas en la primera ciudad (punto de inicio)
-    2. Miras todas las ciudades que aún no has visitado y eliges la más cercana
-    3. Te mueves a esa ciudad y la marcas como visitada
-    4. Repites los pasos 2 y 3 hasta visitar todas las ciudades intermedias
-    5. Al final, vas a la última ciudad (punto final)
-    
-    Es como cuando haces recados: empiezas en casa, vas primero a la tienda más cercana,
-    luego a la siguiente más cercana, y así sucesivamente, hasta terminar en un lugar específico.
-    """
     # Asumimos que los puntos ya están ordenados por ID.
     n = len(coords)
     inicio = 0
@@ -76,26 +66,6 @@ def vecino_mas_cercano(coords):
 
 # Mejora la ruta usando el algoritmo de 2-opt simple
 def dos_opt_simple(coords, ruta):
-    """
-    Esta función mejora una ruta existente usando el algoritmo 2-opt.
-    
-    A diferencia del algoritmo de vecino más cercano que construye una ruta desde cero,
-    2-opt toma una ruta ya existente y la optimiza intercambiando segmentos para reducir
-    la distancia total.
-    
-    Usar vecino_mas_cercano cuando:
-    - Necesitas generar una ruta inicial desde cero
-    - Tienes puntos de inicio y fin fijos
-    - Quieres una solución rápida pero no necesariamente óptima
-    
-    Usar dos_opt_simple cuando:
-    - Ya tienes una ruta inicial (como la generada por vecino_mas_cercano)
-    - Quieres mejorar esa ruta eliminando cruces y optimizando el recorrido
-    - Puedes permitirte un tiempo de cálculo adicional para obtener una mejor solución
-    
-    Lo ideal es usar ambos: primero vecino_mas_cercano para generar una ruta inicial,
-    y luego dos_opt_simple para mejorarla.
-    """
     # Extremos fijos: no tocamos ruta[0] ni ruta[-1]
     n = len(ruta)
     if n <= 3:
@@ -104,11 +74,11 @@ def dos_opt_simple(coords, ruta):
     while mejoro:
         mejoro = False
         for i in range(1, n - 2):
-            a = ruta[i - 1]
-            b = ruta[i]
+            a = ruta[i - 1]  # Punto anterior al segmento que evaluaremos
+            b = ruta[i]      # Primer punto del segmento a evaluar
             for j in range(i + 1, n - 1):
-                c = ruta[j]
-                d = ruta[j + 1]
+                c = ruta[j]      # Último punto del segmento a evaluar
+                d = ruta[j + 1]  # Punto siguiente al segmento
                 antes = distancia(coords[a], coords[b]) + distancia(coords[c], coords[d])
                 despues = distancia(coords[a], coords[c]) + distancia(coords[b], coords[d])
                 if despues + 1e-12 < antes:
@@ -131,8 +101,7 @@ def main():
     if not puntos:
         print("No hay puntos en el archivo de datos.")
         return
-    # Ordenar por ID para que el inicio sea el primer ID y el fin el último ID
-    puntos.sort(key=lambda t: t[0])#
+    puntos.sort()
     ids = [p[0] for p in puntos]
     coords = [(p[1], p[2]) for p in puntos]
     # Encuentra la ruta más corta usando el algoritmo de vecino más cercano
