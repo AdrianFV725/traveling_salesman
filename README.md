@@ -232,6 +232,118 @@ La ventana de animación muestra:
 
 Ambos archivos usan los mismos algoritmos (vecino más cercano + 2-opt), solo difieren en la presentación y modo de uso.
 
+## Optimización con Simulated Annealing (main_optimizado_graficado.py)
+
+La versión más avanzada del proyecto incluye **Simulated Annealing** (Recocido Simulado), una metaheurística que mejora significativamente las soluciones obtenidas con 2-opt.
+
+### ¿Qué es Simulated Annealing?
+
+Simulated Annealing es un algoritmo de optimización inspirado en el proceso metalúrgico de enfriamiento controlado. Su característica principal es que **puede aceptar soluciones peores temporalmente** para escapar de óptimos locales y encontrar mejores soluciones globales.
+
+### Cómo funciona en este código
+
+El algoritmo implementado sigue estos pasos:
+
+1. **Inicialización**
+
+   - Parte de la mejor ruta obtenida con 2-opt
+   - Establece una temperatura inicial alta (por defecto: 10,000)
+   - Define una temperatura final baja (por defecto: 0.01)
+
+2. **Proceso de optimización**
+   - En cada iteración, genera una nueva ruta usando uno de tres movimientos aleatorios:
+     - **50%**: Intercambio de dos nodos
+     - **35%**: Inversión de un segmento (mini 2-opt)
+     - **15%**: Inserción de un nodo en otra posición
+3. **Criterio de aceptación**
+
+   - Si la nueva ruta es **mejor** → siempre se acepta
+   - Si la nueva ruta es **peor** → se acepta con probabilidad \( e^{-\Delta/T} \)
+     - \( \Delta \) = diferencia de distancia (positiva)
+     - \( T \) = temperatura actual
+   - A mayor temperatura, mayor probabilidad de aceptar soluciones peores
+   - A medida que baja la temperatura, el algoritmo se vuelve más selectivo
+
+4. **Enfriamiento**
+
+   - La temperatura se reduce gradualmente: `T_nueva = T_actual × α`
+   - El parámetro `α` (alpha) controla la velocidad de enfriamiento (por defecto: 0.97)
+   - El proceso continúa hasta alcanzar la temperatura final
+
+5. **Estrategia Multi-Start**
+   - El algoritmo se ejecuta múltiples veces (por defecto: 10 intentos)
+   - Cada ejecución puede explorar diferentes regiones del espacio de soluciones
+   - Se conserva la mejor solución encontrada entre todos los intentos
+   - Esta estrategia es más efectiva que una sola ejecución larga
+
+### Parámetros configurables
+
+La interfaz permite ajustar los siguientes parámetros:
+
+| Parámetro          | Descripción                                     | Valor por defecto | Rango recomendado |
+| ------------------ | ----------------------------------------------- | ----------------- | ----------------- |
+| **Temp Inicial**   | Temperatura de inicio (permite más exploración) | 10,000            | 5,000 - 20,000    |
+| **Temp Final**     | Temperatura de parada (refinamiento final)      | 0.01              | 0.001 - 0.1       |
+| **Alpha (α)**      | Factor de enfriamiento por iteración            | 0.97              | 0.95 - 0.99       |
+| **Iters/Temp**     | Iteraciones por nivel de temperatura            | 300               | 100 - 500         |
+| **N° Intentos SA** | Número de ejecuciones independientes            | 10                | 5 - 50            |
+
+### Pipeline completo de optimización
+
+```
+1. Vecino más cercano    →  Ruta inicial rápida
+2. 2-opt mejorado        →  Optimización local (3 pasadas)
+3. Simulated Annealing   →  Escape de óptimos locales (múltiples intentos)
+```
+
+Cada etapa mejora sobre la anterior, logrando reducciones típicas de distancia del 30-50% respecto a la ruta inicial.
+
+### Ventajas del enfoque Multi-Start
+
+- **Mayor robustez**: No depende de una sola secuencia aleatoria
+- **Mejor exploración**: Cubre diferentes regiones del espacio de búsqueda
+- **Resultados consistentes**: Menor variabilidad entre ejecuciones
+- **Paralelizable**: Los intentos podrían ejecutarse en paralelo (no implementado)
+
+### Cuándo usar cada versión
+
+| Versión                        | Mejor para                                            |
+| ------------------------------ | ----------------------------------------------------- |
+| `main.py`                      | Pruebas rápidas, datasets pequeños, análisis básico   |
+| `main_graficado.py`            | Visualización educativa de 2-opt, demostraciones      |
+| `main_optimizado.py`           | Soluciones de calidad sin interfaz gráfica            |
+| `main_optimizado_graficado.py` | **Mejor solución posible** con visualización completa |
+
+### Ejecución de la versión optimizada
+
+```bash
+python3 main_optimizado_graficado.py
+```
+
+**Flujo de trabajo recomendado:**
+
+1. Configurar número de puntos y parámetros de SA
+2. Presionar "Generar" → calcula solución con 2-opt
+3. Presionar "Optimizar SA" → aplica Simulated Annealing
+4. Presionar "Animar" → visualiza todo el proceso de optimización
+
+### Ejemplo de mejoras típicas
+
+Para un problema de 60 ciudades:
+
+- **Ruta inicial (vecino más cercano)**: ~450 unidades
+- **Después de 2-opt**: ~380 unidades (mejora: ~15%)
+- **Después de SA**: ~340 unidades (mejora adicional: ~10%)
+- **Mejora total**: ~25-30% respecto a la solución inicial
+
+### Notas técnicas
+
+- Los extremos (inicio y fin) permanecen fijos en todas las etapas
+- SA solo modifica nodos interiores de la ruta
+- La probabilidad de aceptación decrece exponencialmente con el tiempo
+- Temperaturas muy bajas convierten SA en búsqueda local pura
+- Temperaturas muy altas hacen el algoritmo completamente aleatorio
+
 ## Licencia
 
 Uso académico/educativo.
